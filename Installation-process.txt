@@ -1,0 +1,19 @@
+# Environment Setup
+
+# Create a virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+# venv\Scripts\activate
+# On Unix/MacOS:
+source venv/bin/activate
+
+# Install required dependencies
+pip install fastapi uvicorn python-multipart PyPDF2 langchain-text-splitters openai python-dotenv tiktoken pycryptodome
+
+# Create .env file with OpenAI API key
+echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
+
+# Run the application
+uvicorn main:app --reload

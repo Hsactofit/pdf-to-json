@@ -1,0 +1,107 @@
+# PDF to JSON Processor with FastAPI
+
+## System Overview
+
+This application provides a robust API service for extracting structured data from PDF documents and populating JSON templates. Built with FastAPI, it offers both synchronous and asynchronous processing options to handle documents of varying sizes efficiently.
+
+## Key Features
+
+### 1. PDF Upload and Text Extraction
+- Accepts PDF documents through a user-friendly API endpoint
+- Handles document security features using PyPDF2 with PyCryptodome
+- Extracts text while preserving the document's logical structure
+- Supports multi-page documents with proper text concatenation
+
+### 2. Intelligent Text Chunking
+- Implements an optimized chunking algorithm with RecursiveCharacterTextSplitter
+- **10% Chunk Overlap** ensures context preservation between adjacent chunks
+  - Example: For a 4000-token chunk size, 400 tokens overlap between chunks
+  - This prevents information loss at chunk boundaries, especially for data that might span across chunks
+- Adaptive chunk sizing to maximize information density while respecting model token limits
+- Context-aware splitting that tries to break text at logical boundaries (paragraphs, sections) when possible
+
+### 3. LLM-Powered Data Extraction
+- Utilizes GPT-4o Mini for efficient and accurate information extraction
+- Custom-engineered prompts that guide the model to identify relevant information
+- Structured JSON output format ensures consistent data processing
+- Token count management to optimize processing efficiency and cost
+- Temperature control (0.0) for maximum extraction precision
+
+### 4. Field Definition Enhancement
+- Optional integration with a reference document (reference.xlsx)
+- Detailed field descriptions provide additional context to the LLM
+- Field mapping ensures accurate placement of extracted data
+- Handling of complex nested JSON structures and arrays
+
+### 5. Intelligent Result Merging
+- Sophisticated algorithm for combining data from multiple chunks
+- Recursive merging of nested JSON structures 
+- Deduplication of list items to prevent redundancy
+- Smart conflict resolution prioritizing first meaningful occurrences
+- Preservation of all original fields from the JSON template
+
+### 6. Processing Architecture
+- Asynchronous background task processing for large documents
+- In-memory task tracking with status updates
+- Robust error handling at each processing stage
+- Automatic temporary file cleanup
+
+### 7. API Design
+- RESTful endpoint structure following industry best practices
+- Comprehensive validation of inputs and outputs
+- CORS middleware for cross-origin resource sharing
+- Detailed response models using Pydantic
+- Health check endpoint for system monitoring
+
+### 8. Performance Optimizations
+- Minimizes the number of chunks by maximizing chunk size
+- Caches the OpenAI client to reduce initialization overhead
+- Uses efficient binary file handling
+- Implements resource management to prevent memory leaks
+
+## Processing Workflow
+
+1. **PDF Upload**: User uploads a PDF and provides a JSON template
+2. **Text Extraction**: System extracts all text content from the PDF
+3. **Text Chunking**: Content is divided into overlapping chunks (with 10% overlap)
+4. **Field Mapping**: If a reference file exists, field descriptions are loaded
+5. **LLM Processing**: Each chunk is processed by GPT-4o Mini with enhanced prompts
+6. **Result Merging**: Extracted data from all chunks is intelligently combined
+7. **JSON Population**: The structured data populates the provided template
+8. **Response Delivery**: Completed JSON is returned to the user
+
+## Implementation Details
+
+### Chunk Overlapping Mechanism
+The system implements a precise 10% overlap between chunks to maintain context continuity:
+
+```
+Chunk 1: [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+Chunk 2:                               [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+Chunk 3:                                                              [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]
+                                        ↑↑↑↑                           ↑↑↑↑
+                                   Overlap Region                 Overlap Region
+```
+
+This overlap ensures that:
+- Sentences split between chunks are fully captured
+- Entity relationships spanning chunk boundaries are preserved
+- Contextual information flows between processing segments
+- No information is lost due to arbitrary chunking
+
+### Token Management
+- Accurately counts tokens using the tiktoken library
+- Adjusts chunk sizes to stay within model context limits
+- Balances between fewer chunks (for efficiency) and smaller chunks (for processing depth)
+
+### Error Handling
+- Comprehensive try/except blocks around all critical operations
+- Detailed error logging with informative messages
+- Graceful failure modes that preserve partial results when possible
+- Clear error responses to the client with actionable information
+
+### Data Security
+- Temporary files are created with secure permissions
+- All uploaded files are cleaned up after processing
+- No permanent storage of user documents
+- API keys are securely managed via environment variables
