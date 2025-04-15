@@ -17,3 +17,6 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 
 # Run the application
 uvicorn main:app --reload
+
+# Reference
+https://claude.site/artifacts/a45d43fc-b683-47df-ac96-636b7cda6ee2
